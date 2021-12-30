@@ -1,4 +1,7 @@
 from flask import Response, request, url_for
+from notifier import InvalidZipCodeException, InvalidCountryCodeException, InvalidArticleListException
+from email_validator import EmailNotValidError
+import json
 
 
 class NotifierAPI:
@@ -14,15 +17,19 @@ class NotifierAPI:
                 request.json['items']
             )
         except InvalidZipCodeException:
-            return 'INVALID_ZIP', 400
+            return json.dumps({'code': 'INVALID_ZIP'}), 400
         except InvalidCountryCodeException:
-            return 'INVALID_COUNTRY', 400
+            return json.dumps({'code': 'INVALID_COUNTRY'}), 400
         except EmailNotValidError:
-            return 'INVALID_EMAIL', 400
+            return json.dumps({'code': 'INVALID_EMAIL'}), 400
+        except InvalidArticleListException:
+            return json.dumps({'code': 'INVALID_ARTICLES'}), 400
+        except Exception:
+            return json.dumps({'code': 'UNKNOWN_ERROR'}), 400
 
 
         self.notifier.send_verification_email(id)
-        return 'OK', 200
+        return json.dumps({'code': 'OK'}), 200
 
     def remove_notification(self):
         id = request.args.get('id')

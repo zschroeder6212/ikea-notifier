@@ -6,12 +6,11 @@ import languages
 def get_state_code(zip_code, country_code):
     r = requests.get(f'https://locations.poc.oc.ingka.com/locationservice/{country_code}/{zip_code}')
 
-    print(r.json())
+    if('validZipCode' in r.json() and r.json()['validZipCode'] is False or zip_code == ''):
+        return 'INVALID_ZIP'
+
     if('errorCode' in r.json() and r.json()['errorCode'] == 200001):
         return ''
-
-    if('validZipCode' in r.json() and r.json()['validZipCode'] is False):
-        return 'INVALID_ZIP'
 
     return r.json()['additionalAttributes']['stateInfo'][0]['stateCode']
 

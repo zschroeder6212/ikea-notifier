@@ -8,16 +8,12 @@
 .item_input .list {
     background-color: #FFF;
     width: 90%;
-    height: 300px;
-    margin: 0 auto;
+    height: 100px;
     display: block;
-
-    margin-top: 20px;
-    margin-bottom: 30px;
-
     cursor: text;
-
     overflow: auto;
+    border: 1px solid rgb(58, 58, 58);
+    border-radius: 2px;
 }
 
 .item_input input, .item_input input:focus  {

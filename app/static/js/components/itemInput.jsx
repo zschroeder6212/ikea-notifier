@@ -88,11 +88,10 @@ class ItemInput extends React.Component {
       render() {
             return (
                   <div className="item_input" id={this.props.id}>
-                        <label htmlFor={`${this.props.id}-1`} className="input-label">{this.props.label}</label>
                         <div className="list" onClick={this.focusInput} >
                               <div className="items" onClick={this.focusInput}>
                                     <ListItems remove={this.removeItem} vals={this.state.items} />
-                                    <input id={`${this.props.id}-1`} onKeyDown={this.inputEvent} onChange={this.changeEvent} onBlur={this.blurEvent} type="text" />
+                                    <input onKeyDown={this.inputEvent} onChange={this.changeEvent} onBlur={this.blurEvent} type="text" />
                               </div>
                         </div>
                   </div>

@@ -1,6 +1,7 @@
 module.exports = {
       entry: {
             main: "./app/static/js/index.jsx",
+            verification: "./app/static/js/verification.jsx",
       },
       module: {
             rules: [

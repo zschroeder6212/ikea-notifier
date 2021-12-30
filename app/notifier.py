@@ -17,6 +17,10 @@ class InvalidZipCodeException(Exception):
 class InvalidCountryCodeException(Exception):
     pass
 
+
+class InvalidArticleListException(Exception):
+    pass
+
 class Notifier:
     def __init__(self, db, flask_app, email_username, email_password, interval):
         self.db = db
@@ -61,7 +65,7 @@ class Notifier:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute('SELECT * FROM Notifications WHERE id = :id', {'id': id})
-                email = cur[0]['email']
+                email = dict(cur.fetchall()[0])['email']
                 url = url_for('verify_notification', id=id, _external=True)
                 
                 self.send_email(
@@ -72,8 +76,9 @@ class Notifier:
                 )
 
     def add_notification(self, email, country_code, zip_code, items):
+        country_code = country_code.lower()
         state_code = ikea.get_state_code(zip_code, country_code)
-        items = ','.join(items)
+        items = ','.join([''.join(filter(str.isdigit, item)) for item in items])
         id = uuid4().hex
 
         if(state_code == "INVALID_ZIP"):
@@ -82,12 +87,12 @@ class Notifier:
         if country_code not in languages.languages:
             raise InvalidCountryCodeException('invalid_country')
 
-        try:
-            valid = validate_email(email)
-            email = valid.email
-        except EmailNotValidError as e:
-            logging.warning(str(e))
-            return "INVALID_EMAIL"
+        if(len(items) < 1):
+            raise InvalidArticleListException('invalid_article')
+
+        
+        valid = validate_email(email)
+        email = valid.email
 
         notification = {
             'email': email,
@@ -185,8 +190,8 @@ class Notifier:
 
                         if availability != 'NONE':
                             self.send_notification(email, id)
-                    except Exception as e:
-                        logging.warning(f'Error processing notification {notification["id"]}: {str(e)}')
+                    except Exception:
+                        logging.exception('Error processing notification {notification["id"]}')
 
     def run(self):
         notification_thread = threading.Thread(target=self.notify)

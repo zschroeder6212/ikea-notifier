@@ -6,6 +6,7 @@ import logging
 from termcolor import colored
 
 import static
+from api.countries import get_countries
 from notifier import Notifier
 from api.notifier_api import NotifierAPI
 
@@ -25,11 +26,14 @@ notifier.run()
 notifier_api = NotifierAPI(notifier)
 
 app.add_url_rule('/', view_func=static.index, methods=['GET'])
+app.add_url_rule('/verification', view_func=static.verification, methods=['GET'])
 app.add_url_rule('/favicon.ico', view_func=static.favicon, methods=['GET'])
 
 app.add_url_rule('/api/notifier/add_notification', view_func=notifier_api.add_notification, methods=['POST'])
 app.add_url_rule('/api/notifier/verify_notification', view_func=notifier_api.verify_notification, methods=['GET'])
 app.add_url_rule('/api/notifier/remove_notification', view_func=notifier_api.remove_notification, methods=['GET'])
+
+app.add_url_rule('/api/get_countries', view_func=get_countries, methods=['GET'])
 
 logfile = join(os.getenv('LOG_PATH'), 'IKEA-Notifier.log')
 logging.basicConfig(filename=logfile,
