@@ -1,5 +1,6 @@
 from email.message import EmailMessage
 from email_validator import validate_email, EmailNotValidError
+from flask import url_for
 import smtplib
 import sqlite3
 import logging
@@ -10,12 +11,20 @@ import languages
 from uuid import uuid4
 
 
+class InvalidZipCodeException(Exception):
+    pass
+
+class InvalidCountryCodeException(Exception):
+    pass
+
 class Notifier:
-    def __init__(self, db, email_username, email_password, interval):
+    def __init__(self, db, flask_app, email_username, email_password, interval):
+        self.db = db
+        self.flask_app = flask_app
         self.email_username = email_username
         self.email_password = email_password
         self.interval = interval
-        self.db = self.init_db()
+        self.init_db()
 
     def init_db(self):
         """Create required tables"""
@@ -47,15 +56,31 @@ class Notifier:
         s.quit()
         logging.info(f'Notification sent to {dest}')
 
+    def send_verification_email(self, id):
+        with sqlite3.connect(self.db) as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute('SELECT * FROM Notifications WHERE id = :id', {'id': id})
+                email = cur[0]['email']
+                url = url_for('verify_notification', id=id, _external=True)
+                
+                self.send_email(
+                    'IKEA Notifier',
+                    email,
+                    'Verification',
+                    f'Click the following link to verify your email!\n{url}'
+                )
+
     def add_notification(self, email, country_code, zip_code, items):
         state_code = ikea.get_state_code(zip_code, country_code)
         items = ','.join(items)
         id = uuid4().hex
+
         if(state_code == "INVALID_ZIP"):
-            return state_code
+            raise InvalidZipCodeException('invalid_zip')
 
         if country_code not in languages.languages:
-            return "INVALID_COUNTRY"
+            raise InvalidCountryCodeException('invalid_country')
 
         try:
             valid = validate_email(email)
@@ -88,7 +113,48 @@ class Notifier:
                 :id
             )""", notification)
             conn.commit()
+
+        logging.info(f'Added {id}')
         return id
+
+    def remove_notification(self, id):
+        with sqlite3.connect(self.db) as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM Notifications WHERE id = :id", {'id': id})
+            conn.commit()
+        logging.info(f'Removed {id}')
+
+    def verify_notification(self, id):
+        with sqlite3.connect(self.db) as conn:
+            cur = conn.cursor()    
+            cur.execute('UPDATE Notifications SET verified = "True" WHERE id = :id', {'id': id})
+            conn.commit()
+        logging.info(f'Verified {id}')
+
+    def reset_time(self, id):
+        with sqlite3.connect(self.db) as conn:
+            cur = conn.cursor()
+            cur.execute('UPDATE Notifications SET last_message_time = :time WHERE id = :id', {
+                'time': int(time.time()), 
+                'id': id
+            })
+            conn.commit()
+
+    def send_notification(self, email, id):
+        self.reset_time(id)
+
+        with self.flask_app.app_context():
+            remove_url = url_for('remove_notification', id=id, _external=True)
+            print(remove_url)
+
+        self.send_email(
+            'IKEA Notifier',
+            email,
+            'Items Available!',
+            f'One or more items you are watching is available for delivery in your zip code!\nTo turn off notifications click here: {remove_url}'
+        )
+
+        logging.info(f'Notifying {email}')
 
     def notify(self):
         while True:
@@ -101,7 +167,7 @@ class Notifier:
                     try:
                         if notification['verified'] != 'True':
                             continue
-
+                        # print( int(time.time()) - notification['last_message_time'])
                         if int(time.time()) - notification['last_message_time'] < self.interval:
                             continue
 
@@ -118,17 +184,7 @@ class Notifier:
                         availability = ikea.get_availability(order_id, cart_id, country_code, auth)
 
                         if availability != 'NONE':
-                            cur.execute('UPDATE Notifications SET last_message_time = :time WHERE id = :id', {
-                                'time': int(time.time()), 
-                                'id': id
-                            })
-
-                            self.send_email(
-                                'IKEA Notifier',
-                                email,
-                                'Items Available!',
-                                'One or more items you are watching are available for delivery in your zip code!'
-                            )
+                            self.send_notification(email, id)
                     except Exception as e:
                         logging.warning(f'Error processing notification {notification["id"]}: {str(e)}')
 

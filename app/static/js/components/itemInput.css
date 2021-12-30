@@ -1,0 +1,65 @@
+.item_input .input-label {
+    font-family: "roboto";
+    font-size: 25px;
+    color: #f7f7f7;
+    margin-left: 5%;
+}
+
+.item_input .list {
+    background-color: #FFF;
+    width: 90%;
+    height: 300px;
+    margin: 0 auto;
+    display: block;
+
+    margin-top: 20px;
+    margin-bottom: 30px;
+
+    cursor: text;
+
+    overflow: auto;
+}
+
+.item_input input, .item_input input:focus  {
+    border: none;
+    outline: none;
+    width:100px;
+    font-family: Arial;
+}
+
+.remove-item {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 17px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: inherit;
+    text-decoration: none;
+    vertical-align: middle;
+    display: inline-block;
+    padding: 2px 6px;
+    border-left: 1px solid #0073bb;
+    -webkit-border-radius: 0 2px 2px 0;
+    -moz-border-radius: 0 2px 2px 0;
+    border-radius: 0 2px 2px 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-size: 12pt;
+    cursor: pointer;
+}
+
+.item {
+    background-image: linear-gradient(to bottom, #008fd8, #0075cf);
+    background-repeat: repeat-x;
+    display: inline-block;
+    border-radius: 3px;
+    padding: 2px 6px;
+    color: #fff;
+    font-size: 13pt;
+    font-family: Arial;
+    margin: 5px 0px 0px 5px;
+    border: 1px solid #0073bb;
+}
