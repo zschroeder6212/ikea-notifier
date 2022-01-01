@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/IKEA-Notifier
-ExecStart=gunicorn --workers 3 --bind 0.0.0.0:7070 ./main.py
+ExecStart=gunicorn --workers 3 --bind 0.0.0.0:7070 main:app
 
 [Install]
 WantedBy=multi-user.target
