@@ -191,7 +191,7 @@ class Notifier:
                         if availability != 'NONE':
                             self.send_notification(email, id)
                     except Exception:
-                        logging.exception('Error processing notification {notification["id"]}')
+                        logging.exception(f'Error processing notification {notification["id"]}')
 
     def run(self):
         notification_thread = threading.Thread(target=self.notify)
