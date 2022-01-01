@@ -53,7 +53,7 @@ class Notifier:
         msg['From'] = source
         msg['To'] = dest
 
-        s = smtplib.SMTP('smtp.gmail.com')
+        s = smtplib.SMTP('smtp.gmail.com', 587)
         s.starttls()
         s.login(self.email_username, self.email_password)
         s.send_message(msg)
