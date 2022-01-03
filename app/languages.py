@@ -174,7 +174,7 @@ languages = {
     'pe': 'es',
     'pf': 'fr',
     'pg': 'en',
-    'ph': 'tl',
+    'ph': 'en',
     'pk': 'ur',
     'pl': 'pl',
     'pm': 'fr',
