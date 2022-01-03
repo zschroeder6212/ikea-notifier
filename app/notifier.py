@@ -168,30 +168,30 @@ class Notifier:
                 cur = conn.cursor()
                 cur.execute('SELECT * FROM Notifications')
 
-                for notification in cur:
-                    try:
-                        if notification['verified'] != 'True':
-                            continue
-                        # print( int(time.time()) - notification['last_message_time'])
-                        if int(time.time()) - notification['last_message_time'] < self.interval:
-                            continue
+            for notification in cur:
+                try:
+                    if notification['verified'] != 'True':
+                        continue
+                    # print( int(time.time()) - notification['last_message_time'])
+                    if int(time.time()) - notification['last_message_time'] < self.interval:
+                        continue
 
-                        state_code = notification['state_code']
-                        country_code = notification['country_code']
-                        zip_code = notification['zip_code']
-                        id = notification['id']
-                        email = notification['email']
-                        items = notification['items'].split(',')
+                    state_code = notification['state_code']
+                    country_code = notification['country_code']
+                    zip_code = notification['zip_code']
+                    id = notification['id']
+                    email = notification['email']
+                    items = notification['items'].split(',')
 
-                        auth = ikea.get_auth(country_code)
-                        cart_id = ikea.get_cart_id(items, zip_code, state_code, country_code, auth)
-                        order_id = ikea.get_order_id(cart_id, zip_code, state_code, country_code, auth)
-                        availability = ikea.get_availability(order_id, cart_id, country_code, auth)
+                    auth = ikea.get_auth(country_code)
+                    cart_id = ikea.get_cart_id(items, zip_code, state_code, country_code, auth)
+                    order_id = ikea.get_order_id(cart_id, zip_code, state_code, country_code, auth)
+                    availability = ikea.get_availability(order_id, cart_id, country_code, auth)
 
-                        if availability != 'NONE':
-                            self.send_notification(email, id)
-                    except Exception:
-                        logging.exception(f'Error processing notification {notification["id"]}')
+                    if availability != 'NONE':
+                        self.send_notification(email, id)
+                except Exception:
+                    logging.exception(f'Error processing notification {notification["id"]}')
 
     def run(self):
         notification_thread = threading.Thread(target=self.notify)
