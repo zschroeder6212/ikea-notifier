@@ -68,12 +68,12 @@ class Notifier:
                 email = dict(cur.fetchall()[0])['email']
                 url = url_for('verify_notification', id=id, _external=True)
                 
-                # self.send_email(
-                #     'IKEA Notifier',
-                #     email,
-                #     'Verification',
-                #     f'Click the following link to verify your email!\n{url}'
-                # )
+                self.send_email(
+                    'IKEA Notifier',
+                    email,
+                    'Verification',
+                    f'Click the following link to verify your email!\n{url}'
+                )
 
     def add_notification(self, email, country_code, zip_code, items):
         country_code = country_code.lower()
@@ -100,7 +100,7 @@ class Notifier:
             'zip_code': zip_code,
             'state_code': state_code,
             'items': items,
-            'verified': 'True',
+            'verified': 'False',
             'last_message_time': 0,
             'id': id
         }
