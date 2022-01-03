@@ -91,6 +91,7 @@ def get_availability(order_id, cart_id, country_code, auth):
 
     for deliveryServices in r.json()['possibleDeliveryServices']['deliveryServices']:
         if('fulfillmentPossibility' in deliveryServices):
-            return deliveryServices['fulfillmentPossibility']
+            if(deliveryServices['metadata']['selectableInfo']['selectable'] == 'YES'):
+                return deliveryServices['fulfillmentPossibility']
 
     return "NONE"
