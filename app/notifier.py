@@ -156,7 +156,10 @@ class Notifier:
             'IKEA Notifier',
             email,
             'Items Available!',
-            f'One or more items you are watching is available for delivery in your zip code!\nTo turn off notifications click here: {remove_url}'
+            f'''One or more items you are watching is available for delivery in your zip code!
+To turn off notifications click here: {remove_url}
+If this was helpful, consider donating with the following link: https://www.buymeacoffee.com/zschroeder6212
+Donations help to offset the cost of the server and domain name.'''
         )
 
         logging.info(f'Notifying {email}')

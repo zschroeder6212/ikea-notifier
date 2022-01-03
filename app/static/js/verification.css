@@ -30,3 +30,8 @@ h2 {
     margin-top: 60px;
     color: rgb(199, 211, 245);
 }
+
+a:visited, a {
+    color: #f47284;
+    text-decoration: none;
+}
