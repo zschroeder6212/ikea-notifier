@@ -68,12 +68,12 @@ class Notifier:
                 email = dict(cur.fetchall()[0])['email']
                 url = url_for('verify_notification', id=id, _external=True)
                 
-                self.send_email(
-                    'IKEA Notifier',
-                    email,
-                    'Verification',
-                    f'Click the following link to verify your email!\n{url}'
-                )
+                # self.send_email(
+                #     'IKEA Notifier',
+                #     email,
+                #     'Verification',
+                #     f'Click the following link to verify your email!\n{url}'
+                # )
 
     def add_notification(self, email, country_code, zip_code, items):
         country_code = country_code.lower()
@@ -130,10 +130,10 @@ class Notifier:
         logging.info(f'Removed {id}')
 
     def verify_notification(self, id):
-        # with sqlite3.connect(self.db) as conn:
-        #     cur = conn.cursor()    
-        #     cur.execute('UPDATE Notifications SET verified = "True" WHERE id = :id', {'id': id})
-        #     conn.commit()
+        with sqlite3.connect(self.db) as conn:
+            cur = conn.cursor()    
+            cur.execute('UPDATE Notifications SET verified = "True" WHERE id = :id', {'id': id})
+            conn.commit()
         logging.info(f'Verified {id}')
 
     def reset_time(self, id):
@@ -161,18 +161,23 @@ class Notifier:
 
         logging.info(f'Notifying {email}')
 
-    def notify(self):
-        while True:
-            with sqlite3.connect(self.db) as conn:
+    def get_notifications(self):
+        with sqlite3.connect(self.db) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute('SELECT * FROM Notifications')
+                return cur.fetchall()
 
-            for notification in cur:
+    def notify(self):
+        while True:
+            
+            notifications = self.get_notifications()
+
+            for notification in notifications:
                 try:
                     if notification['verified'] != 'True':
                         continue
-                    # print( int(time.time()) - notification['last_message_time'])
+
                     if int(time.time()) - notification['last_message_time'] < self.interval:
                         continue
 
@@ -192,8 +197,6 @@ class Notifier:
                         self.send_notification(email, id)
                 except Exception:
                     logging.exception(f'Error processing notification {notification["id"]}')
-
-            time.sleep(10)
 
     def run(self):
         notification_thread = threading.Thread(target=self.notify)
