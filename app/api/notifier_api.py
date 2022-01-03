@@ -34,9 +34,9 @@ class NotifierAPI:
     def remove_notification(self):
         id = request.args.get('id')
         self.notifier.remove_notification(id)
-        return ''
+        return 'REMOVE_OK'
 
     def verify_notification(self):
         id = request.args.get('id')
         self.notifier.verify_notification(id)
-        return ''
+        return 'VERIFY_OK'
