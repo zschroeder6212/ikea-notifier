@@ -770,8 +770,8 @@ countries = [
         'code': 'SN'
     },
     {
-        'name': 'Serbia and Montenegro',
-        'code': 'CS'
+        'name': 'Serbia',
+        'code': 'RS'
     },
     {
         'name': 'Seychelles',
