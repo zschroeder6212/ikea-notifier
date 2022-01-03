@@ -100,7 +100,7 @@ class Notifier:
             'zip_code': zip_code,
             'state_code': state_code,
             'items': items,
-            'verified': 'False',
+            'verified': 'True',
             'last_message_time': 0,
             'id': id
         }
@@ -130,10 +130,10 @@ class Notifier:
         logging.info(f'Removed {id}')
 
     def verify_notification(self, id):
-        with sqlite3.connect(self.db) as conn:
-            cur = conn.cursor()    
-            cur.execute('UPDATE Notifications SET verified = "True" WHERE id = :id', {'id': id})
-            conn.commit()
+        # with sqlite3.connect(self.db) as conn:
+        #     cur = conn.cursor()    
+        #     cur.execute('UPDATE Notifications SET verified = "True" WHERE id = :id', {'id': id})
+        #     conn.commit()
         logging.info(f'Verified {id}')
 
     def reset_time(self, id):
@@ -192,6 +192,8 @@ class Notifier:
                         self.send_notification(email, id)
                 except Exception:
                     logging.exception(f'Error processing notification {notification["id"]}')
+
+            time.sleep(10)
 
     def run(self):
         notification_thread = threading.Thread(target=self.notify)
