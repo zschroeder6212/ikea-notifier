@@ -1,4 +1,4 @@
-from flask import Response, request, url_for
+from flask import request
 from notifier import InvalidZipCodeException, InvalidCountryCodeException, InvalidArticleListException
 from email_validator import EmailNotValidError
 import json
@@ -26,7 +26,6 @@ class NotifierAPI:
             return json.dumps({'code': 'INVALID_ARTICLES'}), 400
         except Exception:
             return json.dumps({'code': 'UNKNOWN_ERROR'}), 400
-
 
         self.notifier.send_verification_email(id)
         return json.dumps({'code': 'OK'}), 200

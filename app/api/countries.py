@@ -971,5 +971,6 @@ countries = [
     }
 ]
 
+
 def get_countries():
     return json.dumps(countries)

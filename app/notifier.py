@@ -1,5 +1,5 @@
 from email.message import EmailMessage
-from email_validator import validate_email, EmailNotValidError
+from email_validator import validate_email
 from flask import url_for
 import smtplib
 import sqlite3
@@ -14,12 +14,14 @@ from uuid import uuid4
 class InvalidZipCodeException(Exception):
     pass
 
+
 class InvalidCountryCodeException(Exception):
     pass
 
 
 class InvalidArticleListException(Exception):
     pass
+
 
 class Notifier:
     def __init__(self, db, flask_app, email_username, email_password, interval):
@@ -62,18 +64,18 @@ class Notifier:
 
     def send_verification_email(self, id):
         with sqlite3.connect(self.db) as conn:
-                conn.row_factory = sqlite3.Row
-                cur = conn.cursor()
-                cur.execute('SELECT * FROM Notifications WHERE id = :id', {'id': id})
-                email = dict(cur.fetchall()[0])['email']
-                url = url_for('verify_notification', id=id, _external=True)
-                
-                self.send_email(
-                    'IKEA Notifier',
-                    email,
-                    'Verification',
-                    f'Click the following link to verify your email!\n{url}'
-                )
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM Notifications WHERE id = :id', {'id': id})
+            email = dict(cur.fetchall()[0])['email']
+            url = url_for('verify_notification', id=id, _external=True)
+
+            self.send_email(
+                'IKEA Notifier',
+                email,
+                'Verification',
+                f'Click the following link to verify your email!\n{url}'
+            )
 
     def add_notification(self, email, country_code, zip_code, items):
         country_code = country_code.lower()
@@ -90,7 +92,6 @@ class Notifier:
         if(len(items) < 1):
             raise InvalidArticleListException('invalid_article')
 
-        
         valid = validate_email(email)
         email = valid.email
 
@@ -166,14 +167,13 @@ Donations help to offset the cost of the server and domain name.'''
 
     def get_notifications(self):
         with sqlite3.connect(self.db) as conn:
-                conn.row_factory = sqlite3.Row
-                cur = conn.cursor()
-                cur.execute('SELECT * FROM Notifications')
-                return cur.fetchall()
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM Notifications')
+            return cur.fetchall()
 
     def notify(self):
         while True:
-            
             notifications = self.get_notifications()
 
             for notification in notifications:
