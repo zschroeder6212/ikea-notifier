@@ -1,14 +1,15 @@
 from email.message import EmailMessage
 from email_validator import validate_email
 from flask import url_for
+from threading import Thread
+from fasteners import InterProcessLock
+from uuid import uuid4
 import smtplib
 import sqlite3
 import logging
 import time
-import threading
 import ikea
 import languages
-from uuid import uuid4
 
 
 class InvalidZipCodeException(Exception):
@@ -30,6 +31,7 @@ class Notifier:
         self.email_username = email_username
         self.email_password = email_password
         self.interval = interval
+        self.lock = InterProcessLock('./thread.lock')
         self.init_db()
 
     def init_db(self):
@@ -173,34 +175,36 @@ Donations help to offset the cost of the server and domain name.'''
             return cur.fetchall()
 
     def notify(self):
-        while True:
-            notifications = self.get_notifications()
+        with self.lock:
+            while True:
+                notifications = self.get_notifications()
 
-            for notification in notifications:
-                try:
-                    if notification['verified'] != 'True':
-                        continue
+                for notification in notifications:
+                    try:
+                        if notification['verified'] != 'True':
+                            continue
 
-                    if int(time.time()) - notification['last_message_time'] < self.interval:
-                        continue
+                        if int(time.time()) - notification['last_message_time'] < self.interval:
+                            continue
 
-                    state_code = notification['state_code']
-                    country_code = notification['country_code']
-                    zip_code = notification['zip_code']
-                    id = notification['id']
-                    email = notification['email']
-                    items = notification['items'].split(',')
+                        state_code = notification['state_code']
+                        country_code = notification['country_code']
+                        zip_code = notification['zip_code']
+                        id = notification['id']
+                        email = notification['email']
+                        items = notification['items'].split(',')
 
-                    auth = ikea.get_auth(country_code)
-                    cart_id = ikea.get_cart_id(items, zip_code, state_code, country_code, auth)
-                    order_id = ikea.get_order_id(cart_id, zip_code, state_code, country_code, auth)
-                    availability = ikea.get_availability(order_id, cart_id, country_code, auth)
+                        auth = ikea.get_auth(country_code)
+                        cart_id = ikea.get_cart_id(items, zip_code, state_code, country_code, auth)
+                        order_id = ikea.get_order_id(cart_id, zip_code, state_code, country_code, auth)
+                        availability = ikea.get_availability(order_id, cart_id, country_code, auth)
 
-                    if availability != 'NONE':
-                        self.send_notification(email, id)
-                except Exception:
-                    logging.exception(f'Error processing notification {notification["id"]}')
+                        if availability != 'NONE':
+                            self.send_notification(email, id)
+                    except Exception:
+                        logging.exception(f'Error processing notification {notification["id"]}')
 
     def run(self):
-        notification_thread = threading.Thread(target=self.notify)
+        notification_thread = Thread(target=self.notify)
+        notification_thread.daemon = True
         notification_thread.start()

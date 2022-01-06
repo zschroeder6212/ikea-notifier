@@ -8,7 +8,7 @@ class ListItems extends React.Component {
                   <React.Fragment>
                         {this.props.vals.map((val, index) =>
                               <div key={index.toString()} className="item" data-value={val}>
-                                    {` ${val} `}
+                                    <span onClick={() => {this.props.edit(index)}} class="item-value">{` ${val} `}</span>
                                     <span onClick={() => {this.props.remove(index)}} className="remove-item" title="Remove">×</span>
                               </div>
                         )}
@@ -25,6 +25,8 @@ class ItemInput extends React.Component {
             this.state = {
                   items: []
             };
+
+            this.itemInput = React.createRef();
       }
 
       focusInput(event) {
@@ -43,6 +45,12 @@ class ItemInput extends React.Component {
             this.state.items.push(value);
             this.setState(this.state);
             this.props.callback(this.state.items);
+      }
+
+      editItem = index => {
+            this.itemInput.current.value = this.state.items[index];
+            this.removeItem(index);
+            this.itemInput.current.focus();
       }
 
       inputEvent = (event) => {
@@ -90,8 +98,8 @@ class ItemInput extends React.Component {
                   <div className="item_input" id={this.props.id}>
                         <div className="list" onClick={this.focusInput} >
                               <div className="items" onClick={this.focusInput}>
-                                    <ListItems remove={this.removeItem} vals={this.state.items} />
-                                    <input onKeyDown={this.inputEvent} onChange={this.changeEvent} onBlur={this.blurEvent} type="text" />
+                                    <ListItems edit={this.editItem} remove={this.removeItem} vals={this.state.items} />
+                                    <input ref={this.itemInput} onKeyDown={this.inputEvent} onChange={this.changeEvent} onBlur={this.blurEvent} type="text" />
                               </div>
                         </div>
                   </div>
