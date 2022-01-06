@@ -15,7 +15,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('APP_SECRET_KEY')
 app.config['DEBUG'] = (os.getenv('APP_DEBUG') == 'True')
-app.config['SERVER_NAME'] = '192.168.254.229:5000'
+app.config['SERVER_NAME'] = os.getenv('SERVER_NAME')
 
 notifier = Notifier(os.getenv('DB_FILE'), app, os.getenv('EMAIL_USERNAME'), os.getenv('EMAIL_PASSWORD'), int(os.getenv('NOTIFICATION_INTERVAL')))
 notifier.run()
