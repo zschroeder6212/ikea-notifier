@@ -566,10 +566,6 @@ countries = [
         'code': 'YT'
     },
     {
-        'name': 'Mexico',
-        'code': 'MX'
-    },
-    {
         'name': 'Micronesia, Federated States of',
         'code': 'FM'
     },
