@@ -1,5 +1,5 @@
 from flask import request
-from notifier import InvalidZipCodeException, InvalidCountryCodeException, InvalidArticleListException
+from ikea import InvalidZipCodeException, InvalidCountryCodeException, InvalidArticleListException
 from email_validator import EmailNotValidError
 import json
 

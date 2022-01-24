@@ -3,6 +3,18 @@ import json
 import languages
 
 
+class InvalidZipCodeException(Exception):
+    pass
+
+
+class InvalidCountryCodeException(Exception):
+    pass
+
+
+class InvalidArticleListException(Exception):
+    pass
+
+
 def get_state_code(zip_code, country_code):
     r = requests.get(f'https://locations.poc.oc.ingka.com/locationservice/{country_code}/{zip_code}')
 
@@ -37,7 +49,7 @@ def get_cart_id(items, zip_code, state_code, country_code, auth):
         'X-Client-Id': 'af2525c3-1779-49be-8d7d-adf32cac1934'
     }
 
-    language_code = languages.languages[country_code]
+    language_code = languages.languages.get(country_code)
 
     data = {
         'shoppingType': 'ONLINE',
@@ -60,7 +72,12 @@ def get_cart_id(items, zip_code, state_code, country_code, auth):
         })
 
     r = requests.post(f'https://ordercapture.ingka.com/ordercaptureapi/{country_code}/checkouts', headers=headers, data=json.dumps(data))
-    return r.json()['resourceId']
+
+    print(r.json())
+    if 'resourceId' in r.json():
+        return r.json()['resourceId']
+    else:
+        return r.json()['errorCode']
 
 
 def get_order_id(cart_id, zip_code, state_code, country_code, auth):

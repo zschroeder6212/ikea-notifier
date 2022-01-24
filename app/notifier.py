@@ -12,18 +12,6 @@ import ikea
 import languages
 
 
-class InvalidZipCodeException(Exception):
-    pass
-
-
-class InvalidCountryCodeException(Exception):
-    pass
-
-
-class InvalidArticleListException(Exception):
-    pass
-
-
 class Notifier:
     def __init__(self, db, flask_app, email_username, email_password, interval):
         self.db = db
