@@ -24,7 +24,12 @@ def get_state_code(zip_code, country_code):
     if('errorCode' in r.json() and r.json()['errorCode'] == 200001):
         return ''
 
-    return r.json()['additionalAttributes']['stateInfo'][0]['stateCode']
+    if('stateInfo' in r.json()['additionalAttributes']):
+        return r.json()['additionalAttributes']['stateInfo'][0]['stateCode']
+    elif('stateSuburbRelation' in r.json()['additionalAttributes']):
+        return r.json()['additionalAttributes']['stateSuburbRelation'][0]['state']
+    else:
+        raise ValueError(f'Unable to parse response: {r.json()}')
 
 
 def get_auth(country_code):

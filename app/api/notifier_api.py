@@ -25,6 +25,7 @@ class NotifierAPI:
         except InvalidArticleListException:
             return json.dumps({'code': 'INVALID_ARTICLES'}), 400
         except Exception:
+            logging.exception('Error adding notification')
             return json.dumps({'code': 'UNKNOWN_ERROR'}), 400
 
         self.notifier.send_verification_email(id)
