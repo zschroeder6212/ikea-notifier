@@ -13,9 +13,12 @@ import languages
 
 
 class Notifier:
-    def __init__(self, db, flask_app, email_username, email_password, interval):
+    def __init__(self, db, flask_app, email_server, email_port, email_from, email_username, email_password, interval):
         self.db = db
         self.flask_app = flask_app
+        self.email_server = email_server
+        self.email_port = email_port
+        self.email_from = email_from
         self.email_username = email_username
         self.email_password = email_password
         self.interval = interval
@@ -38,14 +41,14 @@ class Notifier:
                             )""")
             conn.commit()
 
-    def send_email(self, source, dest, subject, body):
+    def send_email(self, dest, subject, body):
         msg = EmailMessage()
         msg.set_content(body)
         msg['Subject'] = subject
-        msg['From'] = source
+        msg['From'] = self.email_from
         msg['To'] = dest
 
-        s = smtplib.SMTP('smtp.gmail.com', 587)
+        s = smtplib.SMTP(self.email_server, self.email_port)
         s.starttls()
         s.login(self.email_username, self.email_password)
         s.send_message(msg)
@@ -61,7 +64,6 @@ class Notifier:
             url = url_for('verify_notification', id=id, _external=True)
 
             self.send_email(
-                'IKEA Notifier',
                 email,
                 'Verification',
                 f'Click the following link to verify your email!\n{url}'
@@ -144,7 +146,6 @@ class Notifier:
             print(remove_url)
 
         self.send_email(
-            'IKEA Notifier',
             email,
             'Items Available!',
             f'''One or more items you are watching is available for delivery in your zip code!

@@ -17,7 +17,7 @@ app.secret_key = os.getenv('APP_SECRET_KEY')
 app.config['DEBUG'] = (os.getenv('APP_DEBUG') == 'True')
 app.config['SERVER_NAME'] = os.getenv('SERVER_NAME')
 
-notifier = Notifier(os.getenv('DB_FILE'), app, os.getenv('EMAIL_USERNAME'), os.getenv('EMAIL_PASSWORD'), int(os.getenv('NOTIFICATION_INTERVAL')))
+notifier = Notifier(os.getenv('DB_FILE'), app, os.getenv('EMAIL_SERVER'), os.getenv('EMAIL_PORT'), os.getenv('EMAIL_FROM'), os.getenv('EMAIL_USERNAME'), os.getenv('EMAIL_PASSWORD'), int(os.getenv('NOTIFICATION_INTERVAL')))
 notifier.run()
 
 notifier_api = NotifierAPI(notifier)
